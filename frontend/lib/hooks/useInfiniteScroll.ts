@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface UseInfiniteScrollOptions {
   onLoadMore: () => void;
@@ -53,20 +53,20 @@ export const useInfiniteScroll = ({
  * Custom hook for handling pagination
  */
 export const usePagination = (defaultPage: number = 1, defaultLimit: number = 20) => {
-  const [page, setPage] = useCallback([defaultPage, () => {}] as const, []);
-  const [limit, setLimit] = useCallback([defaultLimit, () => {}] as const, []);
+  const [page, setPage] = useState(defaultPage);
+  const [limit, setLimit] = useState(defaultLimit);
 
   const goToPage = useCallback((newPage: number) => {
     setPage(newPage);
-  }, [setPage]);
+  }, []);
 
   const goToNextPage = useCallback(() => {
     setPage((prev: number) => prev + 1);
-  }, [setPage]);
+  }, []);
 
   const goToPreviousPage = useCallback(() => {
     setPage((prev: number) => Math.max(1, prev - 1));
-  }, [setPage]);
+  }, []);
 
   return {
     page,

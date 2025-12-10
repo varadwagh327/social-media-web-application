@@ -20,16 +20,16 @@ export interface Post {
   user?: User;
   title: string;
   description?: string;
-  contentType: 'image' | 'video';
-  mediaUrl: string;
-  thumbnailUrl?: string;
-  likesCount: number;
-  commentsCount: number;
-  sharesCount: number;
-  isPublished: boolean;
-  isLikedByUser?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  content_type: 'text' | 'image' | 'video' | 'mixed';
+  media_url?: string;
+  thumbnail_url?: string;
+  likes_count: number;
+  comments_count: number;
+  shares_count: number;
+  is_published: boolean;
+  is_liked_by_user?: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 // Comment Types
@@ -218,7 +218,7 @@ export type UseAuthReturn = {
 };
 
 export type UsePostsReturn = {
-  posts: PostResponse[];
+  posts: Post[];
   loading: boolean;
   error: string | null;
   pagination: Pagination;

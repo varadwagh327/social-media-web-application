@@ -18,17 +18,8 @@ export function SignupForm() {
   const [localError, setLocalError] = useState('');
 
   const validatePassword = (password: string): string | null => {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!/[A-Z]/.test(password)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!/[0-9]/.test(password)) {
-      return 'Password must contain at least one number';
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      return 'Password must contain at least one special character';
+    if (password.length < 6) {
+      return 'Password must be at least 6 characters';
     }
     return null;
   };
@@ -69,12 +60,14 @@ export function SignupForm() {
     }
 
     try {
-      await signup({
+      const result = await signup({
         username: formData.username,
         email: formData.email,
         password: formData.password,
       });
-      router.push('/posts');
+      if (result && result.user) {
+        router.push('/posts');
+      }
     } catch (err: any) {
       setLocalError(err.message || 'Signup failed');
     }

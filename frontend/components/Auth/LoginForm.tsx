@@ -26,8 +26,10 @@ export function LoginForm() {
     }
 
     try {
-      await login(formData.email, formData.password);
-      router.push('/posts');
+      const result = await login(formData.email, formData.password);
+      if (result && result.user) {
+        router.push('/posts');
+      }
     } catch (err: any) {
       setLocalError(err.message || 'Login failed');
     }

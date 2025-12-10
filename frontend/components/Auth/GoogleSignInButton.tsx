@@ -60,7 +60,10 @@ export default function GoogleSignInButton() {
                   localStorage.setItem('accessToken', accessToken);
                   localStorage.setItem('refreshToken', refreshToken);
                   dispatch(setUser(user));
-                  router.push('/posts');
+                  // Small delay to ensure state is updated before redirect
+                  setTimeout(() => {
+                    router.push('/posts');
+                  }, 100);
                 }
               } catch (err: any) {
                 console.error('Google sign-in error:', err.message || err);

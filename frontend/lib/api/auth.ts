@@ -8,12 +8,26 @@ export const signupAPI = async (userData: {
   fullName?: string;
 }) => {
   const response = await apiClient.post('/auth/signup', userData);
-  return response.data.data;
+  const data = response.data.data || response.data;
+  return {
+    user: data.user,
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    expiresIn: data.expiresIn || 3600,
+    signUpTime: new Date().toISOString(),
+  };
 };
 
 export const loginAPI = async (credentials: { email: string; password: string }) => {
   const response = await apiClient.post('/auth/login', credentials);
-  return response.data.data;
+  const data = response.data.data || response.data;
+  return {
+    user: data.user,
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    expiresIn: data.expiresIn || 3600,
+    signInTime: new Date().toISOString(),
+  };
 };
 
 export const refreshTokenAPI = async (refreshToken: string) => {

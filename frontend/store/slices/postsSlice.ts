@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { PostResponse, PostsState } from '../types';
+import { PostsState, Post } from '../types';
 
 const initialState: PostsState = {
   posts: [],
@@ -19,16 +19,16 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    setPosts: (state: PostsState, action: PayloadAction<PostResponse[]>) => {
+    setPosts: (state: PostsState, action: PayloadAction<Post[]>) => {
       state.posts = action.payload;
     },
-    addPost: (state: PostsState, action: PayloadAction<PostResponse>) => {
+    addPost: (state: PostsState, action: PayloadAction<Post>) => {
       state.posts.unshift(action.payload);
     },
     deletePost: (state: PostsState, action: PayloadAction<string>) => {
       state.posts = state.posts.filter((post) => post.id !== action.payload);
     },
-    updatePost: (state: PostsState, action: PayloadAction<PostResponse>) => {
+    updatePost: (state: PostsState, action: PayloadAction<Post>) => {
       const index = state.posts.findIndex((p) => p.id === action.payload.id);
       if (index !== -1) {
         state.posts[index] = action.payload;
