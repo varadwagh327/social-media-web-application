@@ -16,7 +16,6 @@ import { createDirectoryIfNotExists } from './utils/fileHelper.js';
 import authRouter from './router/authRouter.js';
 import postRouter from './router/postRouter.js';
 import userRouter from './router/userRouter.js';
-import messageRouter from './router/messageRouter.js';
 
 const app = express();
 
@@ -117,7 +116,6 @@ app.get('/api/v1/health', (req, res) => {
 app.use(`${config.app.apiPrefix}/auth`, authRouter);
 app.use(`${config.app.apiPrefix}/posts`, postRouter);
 app.use(`${config.app.apiPrefix}/users`, userRouter);
-app.use(`${config.app.apiPrefix}/messages`, messageRouter);
 
 /**
  * ============================================
