@@ -65,38 +65,6 @@ export function Navbar() {
                 </motion.span>
               </Link>
 
-              {/* Messages */}
-              <Link
-                href="/messages"
-                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition relative"
-              >
-                <motion.span whileHover={{ scale: 1.2 }} className="text-2xl">
-                  💬
-                </motion.span>
-              </Link>
-
-              {/* Notifications */}
-              <Link
-                href="/notifications"
-                className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition relative"
-              >
-                <motion.span whileHover={{ scale: 1.2 }} className="text-2xl">
-                  ❤️
-                </motion.span>
-              </Link>
-
-              {/* Admin */}
-              {isAdmin && (
-                <Link
-                  href="/admin"
-                  className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-                >
-                  <motion.span whileHover={{ scale: 1.2 }} className="text-2xl">
-                    ⚙️
-                  </motion.span>
-                </Link>
-              )}
-
               {/* Profile Dropdown */}
               <div className="relative ml-2">
                 <motion.button
@@ -204,20 +172,9 @@ export function Navbar() {
                   <Link href="/posts/create" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition">
                     ➕ Create
                   </Link>
-                  <Link href="/messages" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition">
-                    💬 Messages
-                  </Link>
-                  <Link href="/notifications" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition">
-                    ❤️ Notifications
-                  </Link>
                   <Link href="/profile/me" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition">
                     👤 Profile
                   </Link>
-                  {isAdmin && (
-                    <Link href="/admin" className="block px-4 py-2 text-gray-900 hover:bg-gray-100 rounded-lg transition">
-                      ⚙️ Admin
-                    </Link>
-                  )}
                   <button
                     onClick={() => {
                       logout();

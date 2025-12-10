@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 import config from '../config/index.js';
 
-/**
- * MongoDB Database Connection
- * Handles connection pooling, retry logic, and error handling
- */
 export const dbConnection = async () => {
   try {
     const connection = await mongoose.connect(config.database.uri, {
@@ -14,7 +10,6 @@ export const dbConnection = async () => {
     console.log(`✅ MongoDB Connected: ${connection.connection.host}`);
     console.log(`📊 Database: ${connection.connection.name}`);
 
-    // Handle connection events
     mongoose.connection.on('disconnected', () => {
       console.log('⚠️  MongoDB disconnected');
     });
@@ -26,7 +21,6 @@ export const dbConnection = async () => {
     return connection;
   } catch (error) {
     console.error('❌ Failed to connect to MongoDB:', error.message);
-    // Retry connection after 5 seconds
     setTimeout(() => {
       console.log('🔄 Retrying MongoDB connection...');
       dbConnection();
@@ -34,9 +28,6 @@ export const dbConnection = async () => {
   }
 };
 
-/**
- * Disconnect from database
- */
 export const disconnectDB = async () => {
   try {
     await mongoose.disconnect();
@@ -46,9 +37,6 @@ export const disconnectDB = async () => {
   }
 };
 
-/**
- * Health check function
- */
 export const checkDBHealth = async () => {
   try {
     const admin = mongoose.connection.db.admin();

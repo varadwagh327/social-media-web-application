@@ -43,7 +43,7 @@ const config = {
     corsOrigin: (process.env.CORS_ORIGIN || 'http://localhost:3000').split(','),
     cookieSecure: process.env.COOKIE_SECURE === 'true',
     cookieSameSite: process.env.COOKIE_SAME_SITE || 'Lax',
-    corsAllowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    corsAllowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     corsAllowHeaders: ['Content-Type', 'Authorization'],
     corsAllowCredentials: true,
   },

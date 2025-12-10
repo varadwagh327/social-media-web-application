@@ -3,10 +3,6 @@ import { ErrorHandler } from '../middlewares/errorMiddleware.js';
 import UserService from '../services/userService.js';
 import { updateProfileSchema } from '../schemas/userSchema.js';
 
-/**
- * Get user profile
- * GET /api/v1/users/:userId
- */
 export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -25,10 +21,6 @@ export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get current user profile
- * GET /api/v1/users/profile/me
- */
 export const getCurrentUserProfile = catchAsyncErrors(async (req, res, next) => {
   try {
     const user = await UserService.getUserProfile(req.user._id);
@@ -46,10 +38,6 @@ export const getCurrentUserProfile = catchAsyncErrors(async (req, res, next) => 
   }
 });
 
-/**
- * Update user profile
- * PUT /api/v1/users/profile/me
- */
 export const updateProfile = catchAsyncErrors(async (req, res, next) => {
   try {
     const { error, value } = updateProfileSchema.validate(req.body);
@@ -73,10 +61,6 @@ export const updateProfile = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Follow a user
- * POST /api/v1/users/:userId/follow
- */
 export const followUser = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -96,10 +80,6 @@ export const followUser = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get user followers
- * GET /api/v1/users/:userId/followers
- */
 export const getFollowers = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -119,10 +99,6 @@ export const getFollowers = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get user following
- * GET /api/v1/users/:userId/following
- */
 export const getFollowing = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -142,10 +118,6 @@ export const getFollowing = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Search users
- * GET /api/v1/users/search
- */
 export const searchUsers = catchAsyncErrors(async (req, res, next) => {
   try {
     const { q, page = 1, limit = 20 } = req.query;
@@ -168,10 +140,6 @@ export const searchUsers = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get suggested users
- * GET /api/v1/users/suggestions
- */
 export const getSuggestedUsers = catchAsyncErrors(async (req, res, next) => {
   try {
     const { limit = 10 } = req.query;
@@ -188,10 +156,6 @@ export const getSuggestedUsers = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Deactivate account
- * POST /api/v1/users/deactivate
- */
 export const deactivateAccount = catchAsyncErrors(async (req, res, next) => {
   try {
     const result = await UserService.deactivateAccount(req.user._id);

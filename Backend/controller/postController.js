@@ -4,10 +4,6 @@ import PostService from '../services/postService.js';
 import Comment from '../models/commentSchema.js';
 import { createPostSchema, updatePostSchema, paginationSchema, commentSchema } from '../schemas/postSchema.js';
 
-/**
- * Create a new post
- * POST /api/v1/posts
- */
 export const createPost = catchAsyncErrors(async (req, res, next) => {
   try {
     const { error, value } = createPostSchema.validate(req.body);
@@ -31,10 +27,6 @@ export const createPost = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get all posts with pagination
- * GET /api/v1/posts
- */
 export const getAllPosts = catchAsyncErrors(async (req, res, next) => {
   try {
     const { error, value } = paginationSchema.validate(req.query);
@@ -60,10 +52,6 @@ export const getAllPosts = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get single post by ID
- * GET /api/v1/posts/:postId
- */
 export const getPostById = catchAsyncErrors(async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -82,10 +70,6 @@ export const getPostById = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get user's posts
- * GET /api/v1/posts/user/:userId
- */
 export const getUserPosts = catchAsyncErrors(async (req, res, next) => {
   try {
     const { userId } = req.params;
@@ -105,10 +89,6 @@ export const getUserPosts = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Update post
- * PUT /api/v1/posts/:postId
- */
 export const updatePost = catchAsyncErrors(async (req, res, next) => {
   try {
     const { error, value } = updatePostSchema.validate(req.body);
@@ -133,10 +113,6 @@ export const updatePost = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Delete post
- * DELETE /api/v1/posts/:postId
- */
 export const deletePost = catchAsyncErrors(async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -152,10 +128,6 @@ export const deletePost = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Like/Unlike post
- * POST /api/v1/posts/:postId/like
- */
 export const likePost = catchAsyncErrors(async (req, res, next) => {
   try {
     const { postId } = req.params;
@@ -175,10 +147,6 @@ export const likePost = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Search posts
- * GET /api/v1/posts/search
- */
 export const searchPosts = catchAsyncErrors(async (req, res, next) => {
   try {
     const { q, page = 1, limit = 20 } = req.query;
@@ -201,10 +169,6 @@ export const searchPosts = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get trending posts
- * GET /api/v1/posts/trending
- */
 export const getTrendingPosts = catchAsyncErrors(async (req, res, next) => {
   try {
     const { limit = 10 } = req.query;
@@ -221,10 +185,6 @@ export const getTrendingPosts = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Add comment to post
- * POST /api/v1/posts/:postId/comments
- */
 export const addComment = catchAsyncErrors(async (req, res, next) => {
   try {
     const { error, value } = commentSchema.validate(req.body);
@@ -243,7 +203,6 @@ export const addComment = catchAsyncErrors(async (req, res, next) => {
     await comment.save();
     await comment.populate('author', 'username fullName profilePicture');
 
-    // Update post comments count
     const post = await require('../models/postSchema.js').default.findById(postId);
     post.comments.push(comment._id);
     post.commentsCount += 1;
@@ -262,10 +221,6 @@ export const addComment = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Get comments for a post
- * GET /api/v1/posts/:postId/comments
- */
 export const getComments = catchAsyncErrors(async (req, res, next) => {
   try {
     const { postId } = req.params;
