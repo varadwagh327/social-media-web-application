@@ -79,7 +79,69 @@ export class AuthService {
     };
   }
 
-  
+  /**
+   * Google social login/signup
+   */
+  static async googleLogin(googlePayload) {
+    const { email, email_verified, name, picture } = googlePayload || {};
+
+    if (!email) {
+      throw new ErrorHandler('Google account does not provide email', 400);
+    }
+
+    if (!email_verified) {
+      throw new ErrorHandler('Google email is not verified', 400);
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create a username from email local part
+      const local = (email.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
+      let username = local || `user${Date.now().toString().slice(-6)}`;
+      let attempt = 0;
+      while (await User.findOne({ username })) {
+        attempt += 1;
+        username = `${local}${attempt}`;
+      }
+
+      user = new User({
+        username,
+        email,
+        password: Math.random().toString(36).slice(-12),
+        fullName: name || undefined,
+        profilePicture: picture || null,
+        emailVerified: true,
+        role: 'user',
+      });
+
+      await user.save();
+    } else {
+      // Update basic info if missing
+      let changed = false;
+      if (!user.profilePicture && picture) {
+        user.profilePicture = picture;
+        changed = true;
+      }
+      if (!user.fullName && name) {
+        user.fullName = name;
+        changed = true;
+      }
+      if (!user.emailVerified) {
+        user.emailVerified = true;
+        changed = true;
+      }
+      if (changed) await user.save();
+    }
+
+    const { accessToken, refreshToken } = generateTokens(user._id, user.role);
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return { user: userResponse, accessToken, refreshToken };
+  }
+
   static async refreshToken(refreshToken) {
     if (!refreshToken) {
       throw new ErrorHandler('Refresh token is required', 400);

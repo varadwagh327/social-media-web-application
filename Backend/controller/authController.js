@@ -4,14 +4,11 @@ import AuthService from '../services/authService.js';
 import { setTokenCookie, clearTokenCookie } from '../utils/jwtToken.js';
 import { sendWelcomeEmail, sendPasswordResetEmail } from '../utils/emailService.js';
 import { signupSchema, loginSchema, refreshTokenSchema } from '../schemas/authSchema.js';
+import { verifyIdToken } from '../utils/googleAuth.js';
 
-/**
- * User Registration (Signup)
- * POST /api/v1/auth/signup
- */
+
 export const signup = catchAsyncErrors(async (req, res, next) => {
   try {
-    // Validate input
     const { error, value } = signupSchema.validate(req.body, {
       abortEarly: false,
     });
@@ -20,14 +17,11 @@ export const signup = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler(error.details[0].message, 400));
     }
 
-    // Register user
     const { user, accessToken, refreshToken } = await AuthService.signup(value);
 
-    // Set tokens in cookies
     setTokenCookie(res, accessToken, 'accessToken');
     setTokenCookie(res, refreshToken, 'refreshToken');
 
-    // Send welcome email (non-blocking)
     if (user.email) {
       sendWelcomeEmail(user.email, user.fullName || user.username).catch((err) => {
         console.error('Error sending welcome email:', err);
@@ -49,13 +43,8 @@ export const signup = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * User Login
- * POST /api/v1/auth/login
- */
 export const login = catchAsyncErrors(async (req, res, next) => {
   try {
-    // Validate input
     const { error, value } = loginSchema.validate(req.body, {
       abortEarly: false,
     });
@@ -64,10 +53,8 @@ export const login = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler(error.details[0].message, 400));
     }
 
-    // Login user
     const { user, accessToken, refreshToken } = await AuthService.login(value);
 
-    // Set tokens in cookies
     setTokenCookie(res, accessToken, 'accessToken');
     setTokenCookie(res, refreshToken, 'refreshToken');
 
@@ -87,9 +74,35 @@ export const login = catchAsyncErrors(async (req, res, next) => {
 });
 
 /**
- * Refresh Access Token
- * POST /api/v1/auth/refresh
+ * Google Sign-In
+ * POST /api/v1/auth/google
  */
+export const googleSignIn = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return next(new ErrorHandler('idToken is required', 400));
+    }
+
+    const payload = await verifyIdToken(idToken);
+
+    const { user, accessToken, refreshToken } = await AuthService.googleLogin(payload);
+
+    setTokenCookie(res, accessToken, 'accessToken');
+    setTokenCookie(res, refreshToken, 'refreshToken');
+
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Login with Google successful',
+      data: { user, accessToken, refreshToken },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export const refreshToken = catchAsyncErrors(async (req, res, next) => {
   try {
     const { error, value } = refreshTokenSchema.validate(req.body);
@@ -119,17 +132,11 @@ export const refreshToken = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-/**
- * Logout
- * POST /api/v1/auth/logout
- */
 export const logout = catchAsyncErrors(async (req, res, next) => {
   try {
-    // Clear tokens
     clearTokenCookie(res, 'accessToken');
     clearTokenCookie(res, 'refreshToken');
 
-    // Call service for any additional cleanup
     await AuthService.logout(req.user._id);
 
     return res.status(200).json({

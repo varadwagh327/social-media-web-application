@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
+import GoogleSignInButton from '@/components/Auth/GoogleSignInButton';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -140,9 +141,11 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition">
-                    Log in with Facebook
-                  </button>
+                  <div className="w-full">
+                    {/* Google Sign-In Button */}
+                    <div id="google-signin-button" />
+                    <GoogleSignInButton />
+                  </div>
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="text-center">
