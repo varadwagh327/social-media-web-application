@@ -38,6 +38,7 @@ export class AuthService {
       user: userResponse,
       accessToken,
       refreshToken,
+      signUpTime: user.createdAt ? user.createdAt.toISOString() : new Date().toISOString(),
     };
   }
 
@@ -76,6 +77,7 @@ export class AuthService {
       user: userResponse,
       accessToken,
       refreshToken,
+      signInTime: user.lastLogin ? user.lastLogin.toISOString() : new Date().toISOString(),
     };
   }
 
@@ -96,13 +98,17 @@ export class AuthService {
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create a username from email local part
-      const local = (email.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30);
+      // Create a username from email local part (alphanum only)
+      const local = (email.split('@')[0] || 'user').replace(/[^a-zA-Z0-9]/g, '').slice(0, 30);
       let username = local || `user${Date.now().toString().slice(-6)}`;
+      // ensure minimum 3 chars
+      if (username.length < 3) {
+        username = `user${Date.now().toString().slice(-6)}`;
+      }
       let attempt = 0;
       while (await User.findOne({ username })) {
         attempt += 1;
-        username = `${local}${attempt}`;
+        username = `${local || 'user'}${attempt}`;
       }
 
       user = new User({
@@ -139,7 +145,7 @@ export class AuthService {
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    return { user: userResponse, accessToken, refreshToken };
+    return { user: userResponse, accessToken, refreshToken, signInTime: new Date().toISOString() };
   }
 
   static async refreshToken(refreshToken) {

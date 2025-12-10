@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { PostResponse } from '@/store/types';
+import { Post } from '@/store/types';
 import Image from 'next/image';
 
 interface PostCardProps {
-  post: PostResponse;
+  post: Post;
   onLike?: (postId: string) => void;
   onDelete?: (postId: string) => void;
   onComment?: (postId: string) => void;
@@ -45,7 +45,7 @@ export function PostCard({
     return `${Math.floor(diffDays / 30)}m ago`;
   };
 
-  const isOwner = currentUserId === post.user.id;
+  const isOwner = !!post.user && currentUserId === post.user.id;
 
   const handleLike = () => {
     setLiked(!liked);
@@ -63,16 +63,16 @@ export function PostCard({
       <div className="px-4 py-3 flex items-center justify-between border-b border-gray-100">
         <div className="flex items-center gap-3">
           <motion.div whileHover={{ scale: 1.1 }} className="w-10 h-10 bg-gradient-to-br from-pink-400 to-red-400 rounded-full flex items-center justify-center text-white font-bold cursor-pointer">
-            {post.user.username[0].toUpperCase()}
+            {post.user?.username ? post.user.username[0].toUpperCase() : 'U'}
           </motion.div>
           <div>
             <Link
-              href={`/profile/${post.user.id}`}
+              href={`/profile/${post.user?.id || ''}`}
               className="font-semibold text-sm text-gray-900 hover:text-gray-700"
             >
-              {post.user.username}
+              {post.user?.username || 'User'}
             </Link>
-            <p className="text-xs text-gray-500">{formatDate(post.created_at)}</p>
+            <p className="text-xs text-gray-500">{formatDate(new Date(post.created_at))}</p>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ export function PostCard({
         {(post.title || post.description) && (
           <div className="mb-3">
             <p className="text-sm">
-              <span className="font-semibold text-gray-900">{post.user.username}</span>{' '}
+              <span className="font-semibold text-gray-900">{post.user?.username || 'User'}</span>{' '}
               <span className="text-gray-900">
                 {post.title || post.description}
               </span>

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 import GoogleSignInButton from '@/components/Auth/GoogleSignInButton';
+import { AuthToggle } from '@/components/Auth/AuthToggle';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -109,54 +110,26 @@ export default function Home() {
                 </motion.div>
               </motion.div>
             ) : (
-              <motion.form variants={containerVariants} className="space-y-4">
+              <motion.div variants={containerVariants} className="space-y-4">
                 <motion.div variants={itemVariants}>
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    className="w-full px-4 py-3 bg-gray-100 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  />
+                  <AuthToggle />
                 </motion.div>
 
-                <motion.div variants={itemVariants}>
-                  <p className="text-xs text-gray-600 px-4 py-3 text-center">
-                    People who use our service may have uploaded your contact information to SocialHub.
-                  </p>
-                </motion.div>
-
-                <motion.div variants={itemVariants} className="space-y-2">
-                  <Link
-                    href="/auth/signup"
-                    className="block w-full bg-gradient-to-r from-pink-500 to-red-500 text-white py-2 rounded-lg font-semibold text-sm hover:shadow-lg transition-shadow text-center"
-                  >
-                    Sign Up with Email
-                  </Link>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">OR</span>
-                    </div>
+                <motion.div variants={itemVariants} className="relative py-3">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
                   </div>
-
-                  <div className="w-full">
-                    {/* Google Sign-In Button */}
-                    <div id="google-signin-button" />
-                    <GoogleSignInButton />
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">OR</span>
                   </div>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="text-center">
-                  <p className="text-sm text-gray-600">
-                    Have an account?{' '}
-                    <Link href="/auth/login" className="font-semibold text-pink-600 hover:text-pink-700">
-                      Log in
-                    </Link>
-                  </p>
+                <motion.div variants={itemVariants} className="w-full">
+                  {/* Google Sign-In Button */}
+                  <div id="google-signin-button" />
+                  <GoogleSignInButton />
                 </motion.div>
-              </motion.form>
+              </motion.div>
             )}
           </div>
         </motion.div>

@@ -1,12 +1,16 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { createPostAPI } from '@/lib/api/posts';
 import Link from 'next/link';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 
 export default function CreatePostPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [contentType, setContentType] = useState<'text' | 'image' | 'video'>('text');
@@ -82,12 +86,17 @@ export default function CreatePostPage() {
         formData.append('file', file);
       }
 
-      // TODO: Call API to create post
-      // await createPostAPI(formData);
-      alert('Post creation feature coming soon!');
-      setIsLoading(false);
+      await createPostAPI(formData);
+      toast.success('Post created successfully!');
+      setTitle('');
+      setFile(null);
+      setPreview(null);
+      setContentType('text');
+      setTimeout(() => router.push('/posts'), 1500);
     } catch (err: any) {
-      setError(err.message || 'Failed to create post');
+      const errorMsg = err.response?.data?.message || err.message || 'Failed to create post';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setIsLoading(false);
     }
   };

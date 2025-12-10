@@ -6,21 +6,59 @@ import { createPostSchema, updatePostSchema, paginationSchema, commentSchema } f
 
 export const createPost = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { error, value } = createPostSchema.validate(req.body);
-
-    if (error) {
-      return next(new ErrorHandler(error.details[0].message, 400));
+    const { title, description, content, content_type } = req.body;
+    
+    // Validate required fields
+    if (!title) {
+      return next(new ErrorHandler('Title is required', 400));
     }
 
-    const post = await PostService.createPost(value, req.user._id);
+    const postData = {
+      title,
+      description: description || '',
+      content: content || '',
+      contentType: content_type || 'text',
+      tags: [],
+      visibility: 'public',
+      media: [],
+    };
+
+    // Handle file upload if present
+    if (req.files && req.files.file) {
+      const file = req.files.file;
+      const uploadDir = './uploads';
+      
+      // Create upload directory if it doesn't exist
+      import('fs').then(fs => {
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+      });
+
+      // Generate unique filename
+      const fileName = `${Date.now()}-${file.name}`;
+      const filePath = `${uploadDir}/${fileName}`;
+
+      // Move file to uploads directory
+      await file.mv(filePath);
+
+      // Determine file type from content_type
+      const fileType = content_type === 'video' ? 'video' : 'image';
+      
+      postData.media = [{
+        url: `/uploads/${fileName}`,
+        type: fileType,
+        uploadedAt: new Date(),
+      }];
+    }
+
+    const post = await PostService.createPost(postData, req.user._id);
 
     return res.status(201).json({
       success: true,
       statusCode: 201,
       message: 'Post created successfully',
-      data: {
-        post,
-      },
+      data: post,
     });
   } catch (error) {
     next(error);

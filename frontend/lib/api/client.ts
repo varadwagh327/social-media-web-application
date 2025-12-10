@@ -34,18 +34,19 @@ class APIClient {
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
-          try {
+            try {
             const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
             if (refreshToken) {
               const response = await this.client.post('/auth/refresh', {
-                refresh_token: refreshToken,
+                refreshToken,
               });
 
-              const { access_token } = response.data.data;
-              localStorage.setItem('accessToken', access_token);
-
-              originalRequest.headers.Authorization = `Bearer ${access_token}`;
-              return this.client(originalRequest);
+              const { accessToken } = response.data.data || {};
+              if (accessToken) {
+                localStorage.setItem('accessToken', accessToken);
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                return this.client(originalRequest);
+              }
             }
           } catch (refreshError) {
             // Redirect to login on refresh failure

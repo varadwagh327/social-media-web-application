@@ -1,8 +1,7 @@
 import { catchAsyncErrors } from '../middlewares/catchAsyncErrors.js';
 import { ErrorHandler } from '../middlewares/errorMiddleware.js';
 import AuthService from '../services/authService.js';
-import { setTokenCookie, clearTokenCookie } from '../utils/jwtToken.js';
-import { sendWelcomeEmail, sendPasswordResetEmail } from '../utils/emailService.js';
+import { sendWelcomeEmail } from '../utils/emailService.js';
 import { signupSchema, loginSchema, refreshTokenSchema } from '../schemas/authSchema.js';
 import { verifyIdToken } from '../utils/googleAuth.js';
 
@@ -17,10 +16,7 @@ export const signup = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler(error.details[0].message, 400));
     }
 
-    const { user, accessToken, refreshToken } = await AuthService.signup(value);
-
-    setTokenCookie(res, accessToken, 'accessToken');
-    setTokenCookie(res, refreshToken, 'refreshToken');
+    const { user, accessToken, refreshToken, signUpTime } = await AuthService.signup(value);
 
     if (user.email) {
       sendWelcomeEmail(user.email, user.fullName || user.username).catch((err) => {
@@ -36,6 +32,7 @@ export const signup = catchAsyncErrors(async (req, res, next) => {
         user,
         accessToken,
         refreshToken,
+        signUpTime,
       },
     });
   } catch (error) {
@@ -53,21 +50,50 @@ export const login = catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler(error.details[0].message, 400));
     }
 
-    const { user, accessToken, refreshToken } = await AuthService.login(value);
+    try {
+      const { user, accessToken, refreshToken, signInTime } = await AuthService.login(value);
 
-    setTokenCookie(res, accessToken, 'accessToken');
-    setTokenCookie(res, refreshToken, 'refreshToken');
-
-    return res.status(200).json({
-      success: true,
-      statusCode: 200,
-      message: 'Login successful',
-      data: {
-        user,
-        accessToken,
-        refreshToken,
-      },
-    });
+      return res.status(200).json({
+        success: true,
+        statusCode: 200,
+        message: 'Login successful',
+        data: {
+          user,
+          accessToken,
+          refreshToken,
+          signInTime,
+        },
+      });
+    } catch (err) {
+      // If user not found / invalid credentials, auto-register using provided email/password
+      if (err && err.statusCode === 401) {
+        const { email, password } = req.body;
+        if (email && password) {
+          // generate username from email local part (alphanum only for validation)
+          const local = (email.split('@')[0] || 'user').replace(/[^a-zA-Z0-9]/g, '').slice(0, 30);
+          let username = local || `user${Date.now().toString().slice(-6)}`;
+          // ensure username is at least 3 chars
+          if (username.length < 3) {
+            username = `user${Date.now().toString().slice(-6)}`;
+          }
+          // attempt to signup
+          const signupPayload = { username, email, password };
+          const created = await AuthService.signup(signupPayload);
+          return res.status(201).json({
+            success: true,
+            statusCode: 201,
+            message: 'User auto-registered and logged in',
+            data: {
+              user: created.user,
+              accessToken: created.accessToken,
+              refreshToken: created.refreshToken,
+              signUpTime: created.signUpTime,
+            },
+          });
+        }
+      }
+      throw err;
+    }
   } catch (error) {
     next(error);
   }
@@ -89,14 +115,11 @@ export const googleSignIn = catchAsyncErrors(async (req, res, next) => {
 
     const { user, accessToken, refreshToken } = await AuthService.googleLogin(payload);
 
-    setTokenCookie(res, accessToken, 'accessToken');
-    setTokenCookie(res, refreshToken, 'refreshToken');
-
     return res.status(200).json({
       success: true,
       statusCode: 200,
       message: 'Login with Google successful',
-      data: { user, accessToken, refreshToken },
+      data: { user, accessToken, refreshToken, signInTime: new Date().toISOString() },
     });
   } catch (error) {
     next(error);
@@ -115,9 +138,6 @@ export const refreshToken = catchAsyncErrors(async (req, res, next) => {
       value.refreshToken
     );
 
-    setTokenCookie(res, accessToken, 'accessToken');
-    setTokenCookie(res, newRefreshToken, 'refreshToken');
-
     return res.status(200).json({
       success: true,
       statusCode: 200,
@@ -134,9 +154,6 @@ export const refreshToken = catchAsyncErrors(async (req, res, next) => {
 
 export const logout = catchAsyncErrors(async (req, res, next) => {
   try {
-    clearTokenCookie(res, 'accessToken');
-    clearTokenCookie(res, 'refreshToken');
-
     await AuthService.logout(req.user._id);
 
     return res.status(200).json({

@@ -99,7 +99,7 @@ export default function PostsPage() {
             </Link>
 
             {/* Story Examples */}
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1].map((i) => (
               <motion.div
                 key={i}
                 whileHover={{ scale: 1.05 }}

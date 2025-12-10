@@ -99,15 +99,7 @@ export function LoginForm() {
           />
         </motion.div>
 
-        {/* Forgot Password */}
-        <div className="flex justify-end -mt-1">
-          <Link
-            href="#"
-            className="text-sm text-pink-600 hover:underline hover:text-pink-700"
-          >
-            Forgot password?
-          </Link>
-        </div>
+        {/* Removed Forgot Password (feature not required) */}
 
         {/* Login Button */}
         <motion.button
